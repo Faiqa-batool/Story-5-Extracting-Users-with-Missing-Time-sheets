@@ -1,0 +1,20 @@
+<?xml version="1.0" encoding="UTF-8"?><record_update table="sp_dependency">
+    <sp_dependency action="INSERT_OR_UPDATE">
+        <module/>
+        <name>Excel dependency</name>
+        <page_load>false</page_load>
+        <sp_portals/>
+        <sys_class_name>sp_dependency</sys_class_name>
+        <sys_created_by>admin</sys_created_by>
+        <sys_created_on>2025-03-22 11:47:42</sys_created_on>
+        <sys_id>4493323b935826104e04367f3bba1005</sys_id>
+        <sys_mod_count>0</sys_mod_count>
+        <sys_name>Excel dependency</sys_name>
+        <sys_package display_value="Story 5: Time sheet" source="x_1608598_story_5">8ca56e33931826104e04367f3bba105e</sys_package>
+        <sys_policy/>
+        <sys_scope display_value="Story 5: Time sheet">8ca56e33931826104e04367f3bba105e</sys_scope>
+        <sys_update_name>sp_dependency_4493323b935826104e04367f3bba1005</sys_update_name>
+        <sys_updated_by>admin</sys_updated_by>
+        <sys_updated_on>2025-03-22 11:47:42</sys_updated_on>
+    </sp_dependency>
+</record_update>

@@ -1,0 +1,316 @@
+<?xml version="1.0" encoding="UTF-8"?><record_update table="sp_widget">
+    <sp_widget action="INSERT_OR_UPDATE">
+        <category>custom</category>
+        <client_script><![CDATA[api.controller = function($scope) {
+  var c = this;
+
+  // Initialize data
+  c.data.users = [];
+  c.data.loaded = false;
+
+  // Function to load data
+  c.loadData = function() {
+    c.server.update().then(function() {
+      c.data.loaded = true;
+    });
+  };
+
+  // Function to export data to Excel
+  c.exportToExcel = function() {
+    // Check if Papa Parse is loaded
+    if (typeof Papa === 'undefined') {
+      console.error('Papa Parse is not loaded. Please add the dependency.');
+      return;
+    }
+
+    // Prepare data for export
+    var data = c.data.users.map(function(user) {
+      return {
+        Username: user.username,
+        Email: user.email,
+        ManagerName: user.manager_name,
+        ManagerEmail: user.manager_email,
+        MissingWeeks: user.missing_weeks.join(', ')
+      };
+    });
+
+    // Convert data to CSV
+    var csv = Papa.unparse(data);
+
+    // Create a Blob and download the file
+    var blob = new Blob([csv], { type: 'text/csv;charset=utf-8;' });
+    var link = document.createElement('a');
+    link.href = URL.createObjectURL(blob);
+    link.download = 'missing_timesheets.csv';
+    link.click();
+  };
+};]]></client_script>
+        <controller_as>c</controller_as>
+        <css>/* Updated Pink Theme */
+.pink-theme {
+  font-family: Arial, sans-serif;
+  background-color: #ffffff; /* White background */
+  padding: 20px;
+  border-radius: 10px;
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+}
+
+/* Header Section */
+.header {
+  display: flex;
+  justify-content: space-between; /* Align heading to the left and buttons to the right */
+  align-items: center; /* Vertically center items */
+  margin-bottom: 20px;
+}
+
+/* Heading */
+.heading {
+  color: #e91e63; /* Dark pink for heading */
+  font-size: 24px;
+  margin: 0; /* Remove default margin */
+}
+
+/* Button Container */
+.button-container {
+  display: flex;
+  gap: 10px; /* Space between buttons */
+}
+
+/* Buttons */
+.btn-load, .btn-export {
+  padding: 10px 20px;
+  background-color: #ff7eb9; /* Soft pink for buttons */
+  color: white;
+  border: none;
+  border-radius: 5px;
+  font-size: 16px;
+  cursor: pointer;
+  transition: background-color 0.3s ease;
+}
+
+.btn-load:hover, .btn-export:hover {
+  background-color: #e91e63; /* Dark pink on hover */
+}
+
+.btn-export:disabled {
+  background-color: #cccccc; /* Gray for disabled state */
+  cursor: not-allowed;
+}
+
+/* Cards Layout */
+.cards-container {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+  gap: 20px;
+}
+
+.card {
+  background-color: #f5f5f5; /* Light gray for cards */
+  border-radius: 10px;
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+  padding: 20px;
+  transition: transform 0.3s ease;
+}
+
+.card:hover {
+  transform: translateY(-5px); /* Lift card on hover */
+}
+
+.card-header {
+  border-bottom: 1px solid #ddd;
+  margin-bottom: 10px;
+  padding-bottom: 10px;
+}
+
+.card-header h2 {
+  color: #e91e63; /* Dark pink for username */
+  margin: 0;
+}
+
+.card-header p {
+  color: #333333; /* Dark gray for email */
+  margin: 5px 0 0;
+}
+
+.card-body p {
+  color: #333333; /* Dark gray for card content */
+  margin: 5px 0;
+}
+
+/* No Data Message */
+.no-data {
+  text-align: center;
+  color: #e91e63; /* Dark pink for no data message */
+  font-size: 18px;
+  margin-top: 20px;
+}</css>
+        <data_table>sp_instance</data_table>
+        <demo_data/>
+        <description/>
+        <docs/>
+        <field_list/>
+        <has_preview>true</has_preview>
+        <id>story5_widget</id>
+        <internal>false</internal>
+        <link><![CDATA[function link(scope, element, attrs, controller) {  }]]></link>
+        <name>Story5 widget</name>
+        <option_schema/>
+        <public>false</public>
+        <roles/>
+        <script><![CDATA[(function() {
+  // Create a GlideDate object for July 1, 2025
+  var startDate = new GlideDate();
+  startDate.setValue('2025-07-01'); // Set the date to January 1, 2025
+
+  // Get the day of the week 
+  var dayOfWeek = startDate.getDayOfWeekLocalTime();
+
+  // Move back to the upcoming Sunday if January 1 is not a Sunday
+  if (dayOfWeek != 6) { // 6 corresponds to Sunday
+    startDate.addDaysLocalTime(6-dayOfWeek); // Move back to the previous Sunday
+  }
+	// Now startDate is set to the upcoming Sunday
+	gs.info("===========Upcoming Sunday: " + startDate.getValue());
+
+  // Define the end date for January 2025
+  var endDate = new GlideDate();
+  endDate.setValue('2025-12-31'); // Set the end date to January 31, 2025
+
+  // Array to store all weeks in January 2025
+  var weeksInJanuary = [];
+  var currentDate = new GlideDate();
+  currentDate.setValue(startDate); // Start from the calculated Sunday
+
+  while (currentDate.compareTo(endDate) <= 0) { // Loop until currentDate <= endDate
+    weeksInJanuary.push(currentDate.getValue());
+    currentDate.addDaysLocalTime(7); // Move to the next Sunday
+  }
+
+  // Debug: Print weeksInJanuary
+  //gs.info('Weeks in January: ' + weeksInJanuary.join(', '));
+
+  // Fetch users with timecard_user role
+  var users = {};
+  var userGR = new GlideRecord('sys_user_has_role');
+  userGR.addQuery('role.name', 'timecard_user');
+  userGR.query();
+
+  while (userGR.next()) {
+    var userID = userGR.getValue('user');
+    var userRecord = new GlideRecord('sys_user');
+    if (userRecord.get(userID)) {
+      users[userID] = {
+        username: userRecord.getValue('name'),
+        email: userRecord.getValue('email'),
+        manager_name: '',
+        manager_email: '',
+        missing_weeks: []
+      };
+
+      // Fetch manager details
+      if (!userRecord.manager.nil()) {
+        var managerRecord = new GlideRecord('sys_user');
+        if (managerRecord.get(userRecord.getValue('manager'))) {
+          users[userID].manager_name = managerRecord.getValue('name');
+          users[userID].manager_email = managerRecord.getValue('email');
+        }
+      }
+    }
+  }
+
+  // Fetch timesheets for users and identify missing weeks
+  for (var userId in users) {
+    var submittedWeeks = [];
+    var tsGR = new GlideRecord('time_sheet');
+    tsGR.addQuery('user', userId);
+    tsGR.addQuery('week_starts_on', '>=', '2025-07-01');
+    tsGR.addQuery('week_starts_on', '<=', '2025-12-31');
+    tsGR.query();
+
+    while (tsGR.next()) {
+      var weekStart = tsGR.getValue('week_starts_on');
+      var formattedWeekStart = new GlideDate();
+      formattedWeekStart.setValue(weekStart);
+      submittedWeeks.push(formattedWeekStart.getValue());
+    }
+
+    // Debug: Print submittedWeeks for each user
+    gs.info('User: ' + users[userId].username + ', Submitted Weeks: ' + submittedWeeks.join(', '));
+
+    // Compare fetched timesheets with calculated weeks
+    for (var i = 0; i < weeksInJanuary.length; i++) {
+      var calculatedWeekStr = weeksInJanuary[i];
+      var found = false;
+
+      for (var j = 0; j < submittedWeeks.length; j++) {
+        if (submittedWeeks[j] == calculatedWeekStr) {
+          found = true;
+          break;
+        }
+      }
+
+      if (!found) {
+        users[userId].missing_weeks.push(calculatedWeekStr);
+      }
+    }
+  }
+
+  // Prepare data for the widget
+  var result = [];
+  for (var userId in users) {
+    if (users[userId].missing_weeks.length > 0) {
+      result.push(users[userId]);
+    }
+  }
+
+  // Debug: Print number of users with missing weeks
+  gs.info('Users with missing weeks: ' + result.length);
+
+  // Send data to the client
+  data.users = result;
+})();]]></script>
+        <servicenow>false</servicenow>
+        <sys_class_name>sp_widget</sys_class_name>
+        <sys_created_by>admin</sys_created_by>
+        <sys_created_on>2025-03-22 10:48:28</sys_created_on>
+        <sys_id>a016e23b931826104e04367f3bba1012</sys_id>
+        <sys_mod_count>27</sys_mod_count>
+        <sys_name>Story5 widget</sys_name>
+        <sys_package display_value="Story 5: Time sheet" source="x_1608598_story_5">8ca56e33931826104e04367f3bba105e</sys_package>
+        <sys_policy/>
+        <sys_scope display_value="Story 5: Time sheet">8ca56e33931826104e04367f3bba105e</sys_scope>
+        <sys_update_name>sp_widget_a016e23b931826104e04367f3bba1012</sys_update_name>
+        <sys_updated_by>admin</sys_updated_by>
+        <sys_updated_on>2025-04-03 05:58:29</sys_updated_on>
+        <template><![CDATA[<div class="pink-theme">
+  <!-- Header Section -->
+  <div class="header">
+    <h1 class="heading">Users with Missing Timesheets</h1>
+    <div class="button-container">
+      <button class="btn-load" ng-click="c.loadData()">Load Data</button>
+      <button class="btn-export" ng-click="c.exportToExcel()" ng-disabled="c.data.users.length === 0">Export to Excel</button>
+    </div>
+  </div>
+
+  <!-- Cards Layout -->
+  <div class="cards-container" ng-if="c.data.users.length > 0">
+    <div class="card" ng-repeat="user in c.data.users">
+      <div class="card-header">
+        <h2>{{user.username}}</h2>
+        <p>{{user.email}}</p>
+      </div>
+      <div class="card-body">
+        <p><strong>Manager Name:</strong> {{user.manager_name}}</p>
+        <p><strong>Manager Email:</strong> {{user.manager_email}}</p>
+        <p><strong>Missing Weeks:</strong> {{user.missing_weeks.join(', ')}}</p>
+      </div>
+    </div>
+  </div>
+
+  <!-- No Data Message -->
+  <div class="no-data" ng-if="c.data.users.length === 0 && c.data.loaded">
+    <p>No users with missing timesheets found.</p>
+  </div>
+</div>]]></template>
+    </sp_widget>
+</record_update>
