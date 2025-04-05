@@ -1,0 +1,18 @@
+<?xml version="1.0" encoding="UTF-8"?><record_update table="m2m_sp_widget_dependency">
+    <m2m_sp_widget_dependency action="INSERT_OR_UPDATE">
+        <sp_dependency display_value="Excel dependency">4493323b935826104e04367f3bba1005</sp_dependency>
+        <sp_widget display_value="Story5 widget">a016e23b931826104e04367f3bba1012</sp_widget>
+        <sys_class_name>m2m_sp_widget_dependency</sys_class_name>
+        <sys_created_by>admin</sys_created_by>
+        <sys_created_on>2025-03-22 11:47:42</sys_created_on>
+        <sys_id>94a3723b935826104e04367f3bba1076</sys_id>
+        <sys_mod_count>0</sys_mod_count>
+        <sys_name>Excel dependency.Story5 widget</sys_name>
+        <sys_package display_value="Story 5: Time sheet" source="x_1608598_story_5">8ca56e33931826104e04367f3bba105e</sys_package>
+        <sys_policy/>
+        <sys_scope display_value="Story 5: Time sheet">8ca56e33931826104e04367f3bba105e</sys_scope>
+        <sys_update_name>m2m_sp_widget_dependency_94a3723b935826104e04367f3bba1076</sys_update_name>
+        <sys_updated_by>admin</sys_updated_by>
+        <sys_updated_on>2025-03-22 11:47:42</sys_updated_on>
+    </m2m_sp_widget_dependency>
+</record_update>
